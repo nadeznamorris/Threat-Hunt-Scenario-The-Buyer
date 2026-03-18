@@ -169,4 +169,74 @@ DeviceRegistryEvents
 
 ---
 
+***SECTION 4: CREDENTIAL ACCESS***
+
+**Objective:** The attacker enumerated running processes to locate a target for credential theft.
+
+**Flag:** `tasklist | findstr lsass`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where ProcessCommandLine has_any ("tasklist","Get-Process","wmic process","ps")
+| project TimeGenerated, DeviceName, AccountName, FileName, ProcessCommandLine
+| order by TimeGenerated asc
+```
+<img width="768" height="83" alt="image" src="https://github.com/user-attachments/assets/d0fd6213-23d4-42b2-aa37-e9cc0697d149" /> <br>
+
+**Objective:** A named pipe was accessed during credential theft activity.
+
+**Flag:** `\Device\NamedPipe\lsass`
+
+```
+DeviceEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where ActionType == "NamedPipeEvent"
+| extend PipeName = tostring(parse_json(AdditionalFields).PipeName)
+| project TimeGenerated, DeviceName, InitiatingProcessFileName, PipeName
+| sort by TimeGenerated asc
+```
+<img width="643" height="116" alt="image" src="https://github.com/user-attachments/assets/b913959f-104d-4e25-9143-d10d8b3e4d74" /> <br>
+
+---
+
+***SECTION 5: INITIAL ACCESS***
+
+**Objective:** A remote access tool was pre-staged from the previous attack.
+
+**Flag:** `Anydesk.exe`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("anydesk.exe", "teamviewer.exe", "ngrok.exe", "cloudflared.exe", "rutserv.exe", "radmin.exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
+| sort by TimeGenerated asc
+```
+<img width="827" height="82" alt="image" src="https://github.com/user-attachments/assets/9557eaf7-33a8-4f21-b223-ba5dbecb817f" /> <br>
+
+**Objective:** The remote access tool was running from an unusual location on AS-PC2.
+
+**Flag:** `C:\Users\Public\`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("anydesk.exe", "teamviewer.exe", "ngrok.exe", "cloudflared.exe", "rutserv.exe", "radmin.exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
+| sort by TimeGenerated asc
+```
+<img width="828" height="113" alt="image" src="https://github.com/user-attachments/assets/3004dacb-ea7d-4834-ad6b-8ba4ea9d15af" /> <br>
+
+**Objective:** Identify the attacker's external IP address.
+
+**Flag:** `88.97.164.155`
+
+```
+
+
 
