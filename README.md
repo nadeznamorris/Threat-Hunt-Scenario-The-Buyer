@@ -29,7 +29,7 @@
 
 ***SECTION 1: RANSOM NOTE ANALYSIS***
 
-<img width="536" height="557" alt="Ransomware note" src="https://github.com/user-attachments/assets/25e0905f-d491-4cb5-9307-e0c103e572ad" /> <br>
+<img width="636" height="657" alt="Ransomware note" src="https://github.com/user-attachments/assets/25e0905f-d491-4cb5-9307-e0c103e572ad" /> <br>
 
 **Objective:** Identify the ransomware group from the ransom note.  
 **Flag:** `Akira`
@@ -130,7 +130,7 @@ DeviceFileEvents
 
 ```
 DeviceFileEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where FileName has_any (".ps1", ".bat", ".cmd")
 | where FileName !startswith "__PSScriptPolicyTest_"
@@ -145,7 +145,7 @@ DeviceFileEvents
 
 ```
 DeviceRegistryEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where RegistryKey has "Windows Defender"
 | project TimeGenerated, DeviceName, InitiatingProcessFileName, RegistryKey, RegistryValueName, RegistryValueData
@@ -159,7 +159,7 @@ DeviceRegistryEvents
 
 ```
 DeviceRegistryEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where RegistryKey has "Windows Defender"
 | project TimeGenerated, DeviceName, InitiatingProcessFileName, RegistryKey, RegistryValueName, RegistryValueData
@@ -177,7 +177,7 @@ DeviceRegistryEvents
 
 ```
 DeviceProcessEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where ProcessCommandLine has_any ("tasklist","Get-Process","wmic process","ps")
 | project TimeGenerated, DeviceName, AccountName, FileName, ProcessCommandLine
@@ -191,7 +191,7 @@ DeviceProcessEvents
 
 ```
 DeviceEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where ActionType == "NamedPipeEvent"
 | extend PipeName = tostring(parse_json(AdditionalFields).PipeName)
@@ -210,13 +210,13 @@ DeviceEvents
 
 ```
 DeviceProcessEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc1"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where FileName has_any ("anydesk.exe", "teamviewer.exe", "ngrok.exe", "cloudflared.exe", "rutserv.exe", "radmin.exe")
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="827" height="82" alt="image" src="https://github.com/user-attachments/assets/9557eaf7-33a8-4f21-b223-ba5dbecb817f" /> <br>
+<img width="790" height="82" alt="image" src="https://github.com/user-attachments/assets/9557eaf7-33a8-4f21-b223-ba5dbecb817f" /> <br>
 
 **Objective:** The remote access tool was running from an unusual location on AS-PC2.
 
@@ -224,19 +224,54 @@ DeviceProcessEvents
 
 ```
 DeviceProcessEvents
-| where DeviceName has_any ("as-")
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where FileName has_any ("anydesk.exe", "teamviewer.exe", "ngrok.exe", "cloudflared.exe", "rutserv.exe", "radmin.exe")
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="828" height="113" alt="image" src="https://github.com/user-attachments/assets/3004dacb-ea7d-4834-ad6b-8ba4ea9d15af" /> <br>
+<img width="817" height="81" alt="image" src="https://github.com/user-attachments/assets/3a51e0fe-8dae-4413-9786-5b6674e065f7" /> <br>
 
 **Objective:** Identify the attacker's external IP address.
 
 **Flag:** `88.97.164.155`
 
 ```
+DeviceNetworkEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where RemoteIPType == "Public"
+| where InitiatingProcessCommandLine has_any ("Anydesk")
+| project TimeGenerated, DeviceName, InitiatingProcessCommandLine, RemoteIP, RemotePort
+| sort by TimeGenerated asc
+```
+<img width="757" height="83" alt="image" src="https://github.com/user-attachments/assets/082fbcfe-3d86-45ff-b08e-28498da31ff9" /> <br>
 
+**Objective:** Identify the user account that was compromised.
 
+**Flag:** `david.mitchell`
+
+```
+DeviceNetworkEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where RemoteIPType == "Public"
+| where InitiatingProcessCommandLine has_any ("Anydesk")
+| where RemotePort == 7070
+| project TimeGenerated, DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, RemoteIP, RemotePort
+| sort by TimeGenerated asc
+```
+<img width="1000" height="85" alt="image" src="https://github.com/user-attachments/assets/d38af04c-86bf-4e1d-b4a8-c4ef93260962" />
+
+---
+
+***SECTION 6: COMMAND & CONTROL***
+
+**Objective:** A pre-staged beacon from The Broker failed to maintain stable communications. A new beacon was deployed.
+
+**Flag:** `wsync.exe`
+
+```
+
+```
 
