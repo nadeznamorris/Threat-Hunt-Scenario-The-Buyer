@@ -325,5 +325,19 @@ DeviceProcessEvents
 
 ---
 
+***SECTION 7: RECONNAISSANCE***
+
+**Objective:** A network scanner was deployed.
+
+**Flag:** `"scan.exe"`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("scan")
+| project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine
+| order by TimeGenerated asc
+```
 
 
