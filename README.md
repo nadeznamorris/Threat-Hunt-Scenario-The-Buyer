@@ -261,7 +261,7 @@ DeviceNetworkEvents
 | project TimeGenerated, DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, RemoteIP, RemotePort
 | sort by TimeGenerated asc
 ```
-<img width="1000" height="85" alt="image" src="https://github.com/user-attachments/assets/d38af04c-86bf-4e1d-b4a8-c4ef93260962" />
+<img width="900" height="85" alt="image" src="https://github.com/user-attachments/assets/d38af04c-86bf-4e1d-b4a8-c4ef93260962" />
 
 ---
 
@@ -281,5 +281,18 @@ DeviceProcessEvents
 ```
 <img width="982" height="108" alt="image" src="https://github.com/user-attachments/assets/a632df0a-86f4-4d3b-aed8-d811519ab0a2" /> <br>
 
+**Objective:** Identify where the beacon was deployed.
+
+**Flag:** `c:\programdata\`
+
+```
+DeviceProcessEvents
+| where DeviceName has "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where InitiatingProcessFileName has_any ("wsync.exe", "powershell.exe", "cmd.exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
+| sort by TimeGenerated asc
+```
+<img width="775" height="117" alt="image" src="https://github.com/user-attachments/assets/284500a1-3132-47f0-a1ea-c8490be30e03" />
 
 
