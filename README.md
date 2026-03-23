@@ -273,13 +273,13 @@ DeviceNetworkEvents
 
 ```
 DeviceProcessEvents
-| where DeviceName has "as-srv"
+| where DeviceName has_any ("as-")
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
 | where InitiatingProcessFileName has_any ("wsync.exe", "powershell.exe", "cmd.exe")
-| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath, InitiatingProcessFileName
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="982" height="108" alt="image" src="https://github.com/user-attachments/assets/a632df0a-86f4-4d3b-aed8-d811519ab0a2" /> <br>
+<img width="772" height="91" alt="image" src="https://github.com/user-attachments/assets/908faeed-bccb-4fd8-900f-6576d5529214" /> <br>
 
 **Objective:** Identify where the beacon was deployed.
 
@@ -287,12 +287,43 @@ DeviceProcessEvents
 
 ```
 DeviceProcessEvents
-| where DeviceName has "as-srv"
+| where DeviceName == "as-pc2"
 | where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
-| where InitiatingProcessFileName has_any ("wsync.exe", "powershell.exe", "cmd.exe")
+| where FileName == "wsync.exe"
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="775" height="117" alt="image" src="https://github.com/user-attachments/assets/284500a1-3132-47f0-a1ea-c8490be30e03" />
+<img width="773" height="112" alt="Flag 20" src="https://github.com/user-attachments/assets/45b6f57a-0a63-4a53-a63c-838b9eedcb14" /> <br>
+
+**Objective:** Identify the hash of the C2 beacon.  
+
+**Flag:** `66b876c52946f4aed47dd696d790972ff265b6f4451dab54245bc4ef1206d90b`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName == "wsync.exe"
+| project TimeGenerated, DeviceName, FileName, FolderPath, SHA256, ProcessCommandLine
+| order by TimeGenerated asc
+```
+<img width="960" height="80" alt="image" src="https://github.com/user-attachments/assets/46dae70b-fc1d-4581-ac4e-27aba05e7026" /> <br>
+
+**Objective:** A new beacon was deployed to replace the failed one.
+
+**Flag:** `0072ca0d0adc9a1b2e1625db4409f57fc32b5a09c414786bf08c4d8e6a073654`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName == "wsync.exe"
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, SHA256
+| order by TimeGenerated asc
+```
+<img width="1147" height="113" alt="image" src="https://github.com/user-attachments/assets/aef40fd6-ac2e-475b-938e-5caae0881fe8" />
+
+---
+
 
 
