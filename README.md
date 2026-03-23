@@ -272,6 +272,14 @@ DeviceNetworkEvents
 **Flag:** `wsync.exe`
 
 ```
-
+DeviceProcessEvents
+| where DeviceName has "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where InitiatingProcessFileName has_any ("wsync.exe", "powershell.exe", "cmd.exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath, InitiatingProcessFileName
+| sort by TimeGenerated asc
 ```
+<img width="982" height="108" alt="image" src="https://github.com/user-attachments/assets/a632df0a-86f4-4d3b-aed8-d811519ab0a2" /> <br>
+
+
 
