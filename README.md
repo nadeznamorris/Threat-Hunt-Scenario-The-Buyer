@@ -293,7 +293,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="773" height="112" alt="Flag 20" src="https://github.com/user-attachments/assets/45b6f57a-0a63-4a53-a63c-838b9eedcb14" /> <br>
+<img width="750" height="112" alt="Flag 20" src="https://github.com/user-attachments/assets/45b6f57a-0a63-4a53-a63c-838b9eedcb14" /> <br>
 
 **Objective:** Identify the hash of the C2 beacon.  
 
