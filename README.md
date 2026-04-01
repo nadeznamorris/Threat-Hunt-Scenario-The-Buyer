@@ -339,5 +339,76 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine
 | order by TimeGenerated asc
 ```
+<img width="975" height="81" alt="image" src="https://github.com/user-attachments/assets/ba47d66e-5737-40d6-ab11-3ba757d5e481" /> <br>
+
+**Objective:** Identify the hash of the scanner.
+
+**Flag:** `26d5748ffe6bd95e3fee6ce184d388a1a681006dc23a0f08d53c083c593c193b`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-pc2"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("scan")
+| project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine, SHA256
+| order by TimeGenerated asc
+```
+<img width="1195" height="83" alt="image" src="https://github.com/user-attachments/assets/62850757-a86c-4107-b016-86484a9e9082" /> <br>
+
+**Objective:** The network scanner was executed with specific arguments revealing the attacker's intent.
+
+**Flag:** `/portable "C:/Users/david.mitchell/Downloads/" /lng en_us`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where AccountName == "david.mitchell"
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, AccountName, InitiatingProcessFileName
+| order by TimeGenerated desc
+```
+<img width="1292" height="90" alt="image" src="https://github.com/user-attachments/assets/cf34fb6d-c4c8-4e8f-ab66-599630d8c3ae" /> <br>
+
+**Objective:** The attacker enumerated network shares on specific hosts.
+
+**Flag:** `10.1.0.183, 10.1.0.154`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName in~ ("net.exe", "net1.exe")
+| where ProcessCommandLine has_any ("view")
+| project TimeGenerated, DeviceName, AccountName, ProcessCommandLine
+| order by TimeGenerated desc
+```
+<img width="747" height="110" alt="image" src="https://github.com/user-attachments/assets/acf7966f-4fc6-423d-a9ce-4a794ba74865" />
+
+---
+
+***SECTION 8: LATERAL MOVEMENT***
+
+**Objective:** An account was used to access AS-SRV.
+
+**Flag:** `as.srv.administrator`
+
+```
+DeviceLogonEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| project TimeGenerated, DeviceName, AccountName, AccountDomain, LogonType
+| order by TimeGenerated asc
+```
+<img width="782" height="85" alt="image" src="https://github.com/user-attachments/assets/0e5d4a61-9e91-4c1d-9a42-96ef76438918" />
+
+---
+
+***SECTION 9: TOOL TRANSFER***
+
+**Objective:** A living-off-the-land binary was used first but had issues.
+
+**Flag:** `bitsadmin.exe`
+
+
 
 
